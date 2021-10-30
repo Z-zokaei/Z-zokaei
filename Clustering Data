@@ -1,0 +1,82 @@
+
+# Commented out IPython magic to ensure Python compatibility.
+#setup env
+import time
+import warnings
+import numpy as np
+import matplotlib.pyplot as plt
+# %matplotlib inline
+from sklearn import cluster, datasets, mixture
+import sklearn.metrics  
+from sklearn.neighbors import kneighbors_graph
+from sklearn.preprocessing import StandardScaler
+
+#helper calls
+n_samples = 1500
+random_state = 170
+X, y = datasets.make_blobs(n_samples=n_samples, random_state=random_state)
+transformation = [[0.6, -0.6], [-0.4, 0.8]]
+X_aniso = np.dot(X, transformation)
+
+#generating Data Sets A-F
+A = datasets.make_circles(n_samples=n_samples, factor=.5,noise=.05)[0]
+B = datasets.make_moons(n_samples=n_samples, noise=.05)[0]
+C = datasets.make_blobs(n_samples=n_samples, random_state=8)[0]
+D = np.random.rand(n_samples, 2)
+E = (X_aniso, y)[0]
+F = datasets.make_blobs(n_samples=n_samples,
+                             cluster_std=[1.0, 2.5, 0.5],
+                             random_state=random_state)[0]
+
+"""### First look at the data
+Plot all raw data sets A-F in one figure.
+
+
+"""
+
+fig, axes = plt.subplots(2, 3,figsize=(9,6))
+axes[0, 0].scatter(A[:,0], A[:,1])
+axes[0, 1].scatter(B[:,0], B[:,1])
+axes[0, 2].scatter(C[:,0], C[:,1])
+axes[1, 0].scatter(D[:,0], D[:,1])
+axes[1, 1].scatter(E[:,0], E[:,1])
+axes[1, 2].scatter(F[:,0], F[:,1])
+
+"""## Exercise 1
+Perform ```K-Means``` clustering on all data sets: https://scikit-learn.org/stable/modules/clustering.html#k-means
+* 2.1 plot all results - HINT: set the cluster colors by ```axes[0, 0].scatter(A[:,0], A[:,1], c=label)```, where ```label``` is a vector containing the cluster ID of the data samples A (also see [https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.scatter.html](https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.scatter.html) )
+* 2.2 manually try to find the best $k$ for each data set (by visual evaluation)
+
+"""
+
+kmeans = cluster.KMeans(init="random", n_clusters=3, n_init=10, max_iter=300, random_state=42)
+kmeans.fit(B)
+kmeans.labels_
+fig, axes = plt.subplots(2, 3,figsize=(9,6))
+axes[0, 0].scatter(B[:,0], B[:,1], c=kmeans.labels_)
+
+kmeans.fit(F)
+kmeans.labels_
+fig, axes = plt.subplots(2, 3,figsize=(9,6))
+axes[0, 0].scatter(F[:,0], F[:,1], c=kmeans.labels_)
+
+"""## Exercise 3
+Performs ```DBSCAN``` clustering on all data sets and plot all results: https://scikit-learn.org/stable/modules/clustering.html#dbscan
+"""
+
+dbscan= cluster.DBSCAN(eps=0.5 ,min_samples=2)
+dbscan.fit(F)
+dbscan.labels_
+fig, axes = plt.subplots(2, 3,figsize=(9,6))
+axes[0, 0].scatter(F[:,0], F[:,1], c=dbscan.labels_)
+
+"""## Exercise 4
+Compare the results both clustering methods by the mean ```Silhouette Coefficient``` for each data set.
+
+Hint: https://scikit-learn.org/stable/modules/generated/sklearn.metrics.silhouette_score.html#sklearn.metrics.silhouette_score
+"""
+
+compare = sklearn.metrics.silhouette_score(F ,dbscan.labels_)
+print(compare)
+compare1 = sklearn.metrics.silhouette_score(F ,kmeans.labels_)
+print(compare1)
