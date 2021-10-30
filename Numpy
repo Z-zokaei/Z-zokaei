@@ -1,0 +1,49 @@
+
+#1: import the numpy library
+
+import numpy as np
+
+#2: create a random 10x10 array named A
+
+A = np.random.rand(10,10)
+A
+
+#3: return only the odd rows of A
+
+A[::2]
+
+#4: perform a matrix multiplication of A with it's transposed
+np.dot(A,A.T)
+
+#5: compute the matrix inverse of A
+
+np.linalg.inv(A)
+
+#6: divide all entries of A which are lager than 0.5 by 2 (hint: use where() )
+
+NA=np.where(A <= 0.5, A, A/2)
+NA
+
+#7: compute the singular value decomposition of A
+#7.1: plot the singular values
+#7.2: reconstruct A' by using only the top 5 singular values
+
+u, s, vh = np.linalg.svd(A)
+u.shape, s.shape, vh.shape
+
+import matplotlib.pyplot as plt
+
+s
+
+u
+
+vh
+
+plt.plot(s)
+
+s = s[:5]
+s = np.diag(s)
+uprime = u[:,:5]
+vhprime = vh[:,:5]
+Aprime = np.dot(uprime, np.dot(s, vhprime.T))
+Aprime
